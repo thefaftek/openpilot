@@ -1,32 +1,5 @@
-bool HKG_forwarding_enabled = 1;
-int HKG_MDPS12_checksum = -1;
-int HKG_MDPS12_cnt = 0;   
-int HKG_last_StrColT = 0;
-
 void default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
-  int addr = GET_ADDR(to_push);
-  
-  if (addr == 593) {
-    if (HKG_MDPS12_checksum == -1) {
-      int New_Chksum2 = 0;
-      uint8_t dat[8];
-      for (int i=0; i<8; i++) {
-        dat[i] = GET_BYTE(to_push, i);
-      }
-      int Chksum2 = dat[3];
-      dat[3] = 0;
-      for (int i=0; i<8; i++) {
-        New_Chksum2 += dat[i];
-      }
-      New_Chksum2 %= 256;
-      if (Chksum2 == New_Chksum2) {
-        HKG_MDPS12_checksum = 0;
-      }
-      else {
-        HKG_MDPS12_checksum = 1;
-      }
-    }
-  }
+  UNUSED(to_push);
 }
 
 // *** no output safety mode ***
@@ -38,7 +11,7 @@ static void nooutput_init(int16_t param) {
 
 static int nooutput_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   UNUSED(to_send);
-  return 1;
+  return false;
 }
 
 static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
