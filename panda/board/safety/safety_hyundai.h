@@ -17,7 +17,6 @@ struct sample_t hyundai_torque_driver;         // last few driver torques measur
 bool hyundai_has_scc = 0;
 int OP_LKAS_live = 0;
 int hyundai_LKAS_forwarded = 0;
-bool hyundai_has_scc = 0;
 
 static void hyundai_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   int bus = GET_BUS(to_push);
