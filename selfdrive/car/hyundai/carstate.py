@@ -322,8 +322,8 @@ class CarState():
 
     self.lkas_button_on = 7 > cp_cam.vl["LKAS11"]["CF_Lkas_LdwsSysState"] != 0
 
-    if self.trMode != cp_cam.vl["SCC11"]['TauGapSet']:
-      self.trMode = int(self.kegman.conf['lastTrMode'])
+    if self.trMode != int(cp_cam.vl["SCC11"]['TauGapSet']):
+      self.trMode = int(cp_cam.vl["SCC11"]['TauGapSet'])
       self.kegman = kegman_conf()
       self.kegman.conf['lastTrMode'] = str(self.trMode)   # write last distance bar setting to file
       self.kegman.write_config(self.kegman.conf) 
