@@ -3,6 +3,7 @@ from selfdrive.car.hyundai.values import DBC, STEER_THRESHOLD, FEATURES
 from selfdrive.can.parser import CANParser
 from selfdrive.config import Conversions as CV
 from common.kalman.simple_kalman import KF1D
+from selfdrive.kegman_conf import kegman_conf
 
 GearShifter = car.CarState.GearShifter
 
@@ -143,8 +144,9 @@ def get_camera_parser(CP):
     ("VSetDis", "SCC11", 0),
     ("SCCInfoDisplay", "SCC11", 0),
     ("ACC_ObjDist", "SCC11", 0),
-    ("ACCMode", "SCC12", 1),
+    ("TauGapSet", "SCC11", 0),
 
+    ("ACCMode", "SCC12", 1),
     ("CF_VSM_Prefill", "SCC12", 0),
     ("CF_VSM_DecCmdAct", "SCC12", 0),
     ("CF_VSM_HBACmd", "SCC12", 0),
@@ -198,6 +200,11 @@ class CarState():
     self.right_blinker_on = 0
     self.right_blinker_flash = 0
     self.no_radar = self.CP.carFingerprint in FEATURES["non_scc"]
+
+    self.kegman = kegman_conf()
+    self.trMode = 4
+    self.kegman.conf['lastTrMode'] = str(self.trMode)   # write last distance bar setting to file
+    self.kegman.write_config(self.kegman.conf) 
 
   def update(self, cp, cp_mdps, cp_cam):
     # update prevs, update must run once per Loop
@@ -314,6 +321,12 @@ class CarState():
         self.gear_shifter = GearShifter.unknown
 
     self.lkas_button_on = 7 > cp_cam.vl["LKAS11"]["CF_Lkas_LdwsSysState"] != 0
+
+    if self.trMode != cp_cam.vl["SCC11"]['TauGapSet']:
+      self.trMode = int(self.kegman.conf['lastTrMode'])
+      self.kegman = kegman_conf()
+      self.kegman.conf['lastTrMode'] = str(self.trMode)   # write last distance bar setting to file
+      self.kegman.write_config(self.kegman.conf) 
 
     # save the entire LKAS11 and CLU11
     self.lkas11 = cp_cam.vl["LKAS11"]
